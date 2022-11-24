@@ -1,0 +1,53 @@
+name: release pr
+
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: "0 18 * * WED" # 毎週木曜3時00分(JST)に実行
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1
+      - name: get current date
+        env:
+          TZ: "Asia/Tokyo"
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y%m%d')"
+      - name: pre build
+        run: |
+          git diff origin/develop...origin/master --shortstat | grep '^' && exit 1 || echo "ok"
+      - name: install git-pr-release
+        run: |
+          gem install git-pr-release -N
+      - name: create pr
+        run: |
+          echo "GITHUB_REPOSITORY=${GITHUB_REPOSITORY}"
+          RELEASE_BRANCH_NAME="release-${{ steps.date.outputs.date }}"
+          git checkout -b "${RELEASE_BRANCH_NAME}" origin/develop
+          git push --force origin "${RELEASE_BRANCH_NAME}"
+          GITLOG=$(git log -1 --no-merges --oneline origin/master..origin/"$RELEASE_BRANCH_NAME" | cat)
+          echo "GITLOG=${GITLOG}"
+          if [ -n "${GITLOG}" ]; then
+            echo "差分あり"
+            export GIT_PR_RELEASE_TOKEN=${{ secrets.GITHUB_TOKEN }}
+            export GIT_PR_RELEASE_BRANCH_PRODUCTION=master
+            export GIT_PR_RELEASE_BRANCH_STAGING="${RELEASE_BRANCH_NAME}"
+            export GIT_PR_RELEASE_TEMPLATE=".github/.git-pr-release-template.erb"
+            export DEBUG=1
+            git-pr-release
+          else
+            echo "差分なし"
+          fi
+          sleep 5
+          PR_NUMBER=$(gh pr list --base master --head "${RELEASE_BRANCH_NAME}" --json number --jq '.[0] | .number' --state open --label 'group:Release')
+          echo "PR_NUMBER: $PR_NUMBER"
+        env:
+          TZ: Asia/Tokyo
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
