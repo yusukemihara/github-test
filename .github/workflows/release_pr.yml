@@ -18,8 +18,7 @@ jobs:
       - name: get current date
         env:
           TZ: "Asia/Tokyo"
-        id: date
-        run: echo "::set-output name=date::$(date +'%Y%m%d')"
+        run: echo "DATE=$(date +'%Y%m%d')" >>$GITHUB_OUTPUT
       - name: pre build
         run: |
           git diff origin/develop...origin/master --shortstat | grep '^' && exit 1 || echo "ok"
@@ -29,7 +28,7 @@ jobs:
       - name: create pr
         run: |
           echo "GITHUB_REPOSITORY=${GITHUB_REPOSITORY}"
-          RELEASE_BRANCH_NAME="release-${{ steps.date.outputs.date }}"
+          RELEASE_BRANCH_NAME="release-$DATE"
           git checkout -b "${RELEASE_BRANCH_NAME}" origin/develop
           git push --force origin "${RELEASE_BRANCH_NAME}"
           GITLOG=$(git log -1 --no-merges --oneline origin/master..origin/"$RELEASE_BRANCH_NAME" | cat)
