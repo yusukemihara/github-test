@@ -5,8 +5,9 @@ Release <%= Time.now %>
 grouped_pr = pull_requests.group_by { |pr| pr.pr.labels.find { |label| label.name.start_with?("group:") }&.name || "その他" }.sort_by { |k, v| k }
 grouped_pr.each do |group_name, grouped_prs|
 -%>
+<% checkbox = group_name == "group:Deps" ? "" : " [ ]" %>
 ### <%= group_name.gsub(/^group:/, "") %>
 <% grouped_prs.each do |pr|  -%>
-- [ ] [#<%= pr.pr.number -%>](<%= pr.html_link %>) <%= pr.pr.title -%><%= pr.mention %>
+-<%= checkbox %> [#<%= pr.pr.number -%>](<%= pr.html_link %>) <%= pr.pr.title -%><%= pr.mention %>
 <% end %>
 <% end -%>
