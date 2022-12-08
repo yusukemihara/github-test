@@ -20,9 +20,6 @@ jobs:
           TZ: "Asia/Tokyo"
         id: date
         run: echo "date=`date +'%Y%m%d'`" >>$GITHUB_OUTPUT
-      - name: pre build
-        run: |
-          git diff origin/develop...origin/master --shortstat | grep '^' && exit 1 || echo "ok"
       - name: install git-pr-release
         run: |
           gem install git-pr-release -N
