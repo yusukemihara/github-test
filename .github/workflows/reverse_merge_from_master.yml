@@ -38,7 +38,7 @@ jobs:
           export GIT_PR_RELEASE_TOKEN=${{ secrets.GITHUB_TOKEN }}
           export GIT_PR_RELEASE_BRANCH_PRODUCTION="${TARGET_BRANCH}"
           export GIT_PR_RELEASE_BRANCH_STAGING=master
-          export GIT_PR_RELEASE_TEMPLATE=".git-pr-release-reverse-merge-from-master-template.erb"
+          export GIT_PR_RELEASE_TEMPLATE=".github/.git-pr-release-reverse-merge-from-master-template.erb"
           export GIT_PR_RELEASE_LABELS="group:ReverseMerge"
           git-pr-release
           sleep 5
