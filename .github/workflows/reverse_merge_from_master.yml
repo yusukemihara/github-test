@@ -1,0 +1,53 @@
+name: reverse merge from master
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler: "Gemfile.lock"
+      - name: pre build
+        id: check
+        run: |
+          DIFF=$(git diff origin/develop...origin/master --shortstat | grep '^' || echo 'OK')
+          echo "$DIFF"
+          echo "master_diff=${DIFF}" >> "$GITHUB_OUTPUT"
+      - name: create reverse merge
+        if: ${{ steps.check.outputs.master_diff != 'OK' }}
+        run: |
+          LATEST_RELEASE_BRANCH_NAME=$(git branch -r | grep "origin/release-202" | tail -n1 | sed "s/origin\///" | sed "s/ //g")
+          echo "LATEST_RELEASE_BRANCH_NAME=$LATEST_RELEASE_BRANCH_NAME"
+          TARGET_BRANCH=develop
+          if [ -n "$LATEST_RELEASE_BRANCH_NAME" ]; then
+            TARGET_BRANCH="$LATEST_RELEASE_BRANCH_NAME"
+          fi
+          echo "TARGET_BRANCH=${TARGET_BRANCH}"
+          echo "GITHUB_REPOSITORY=${GITHUB_REPOSITORY}"
+          gem install git-pr-release -N
+          export GIT_PR_RELEASE_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          export GIT_PR_RELEASE_BRANCH_PRODUCTION="${TARGET_BRANCH}"
+          export GIT_PR_RELEASE_BRANCH_STAGING=master
+          export GIT_PR_RELEASE_TEMPLATE=".git-pr-release-reverse-merge-from-master-template.erb"
+          export GIT_PR_RELEASE_LABELS="group:ReverseMerge"
+          git-pr-release
+          sleep 5
+          PR_NUMBER=$(gh pr list --base "${TARGET_BRANCH}" --head master --json number --jq '.[0] | .number' --state open --label 'group:ReverseMerge')
+          echo "PR_NUMBER: $PR_NUMBER"
+          gh pr merge "$PR_NUMBER" --merge --subject "Merge pull request #$PR_NUMBER from medley-inc/master"
+        env:
+          TZ: Asia/Tokyo
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  reverse_merge_release_branch:
+    needs:
+      - build
+    uses: ./.github/workflows/reverse_merge.yml

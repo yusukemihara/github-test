@@ -1,0 +1,52 @@
+name: reverse merge
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "release-202*"
+  workflow_call:
+
+permissions: write-all
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler: "Gemfile.lock"
+      - name: install git-pr-release
+        run: |
+          gem install git-pr-release -N
+      - run: |
+          TARGET_BRANCH=$(git branch -r | grep "origin/release-202" | tail -n1 | sed "s/origin\///" | sed "s/ //g")
+          echo "TARGET_BRANCH=$TARGET_BRANCH"
+          if [ -z "${TARGET_BRANCH}" ]; then
+            echo "release branchがない"
+            exit 0
+          fi
+          echo "GITHUB_REPOSITORY=${GITHUB_REPOSITORY}"
+          GITLOG=$(git log -1 --no-merges --oneline origin/develop..origin/"$TARGET_BRANCH" | cat)
+          echo "GITLOG=${GITLOG}"
+          if [ -n "${GITLOG}" ]; then
+            echo "差分あり"
+            export GIT_PR_RELEASE_TOKEN=${{ secrets.GITHUB_TOKEN }}
+            export GIT_PR_RELEASE_BRANCH_PRODUCTION=develop
+            export GIT_PR_RELEASE_BRANCH_STAGING="${TARGET_BRANCH}"
+            export GIT_PR_RELEASE_TEMPLATE=".git-pr-release-reverse-merge-template.erb"
+            export GIT_PR_RELEASE_LABELS="group:ReverseMerge"
+            git-pr-release
+            sleep 5
+            PR_NUMBER=$(gh pr list --base develop --head "${TARGET_BRANCH}" --json number --jq '.[0] | .number' --state open --label 'group:ReverseMerge')
+            echo "PR_NUMBER: $PR_NUMBER"
+            gh pr merge "$PR_NUMBER" --merge --subject "Merge pull request #$PR_NUMBER from medley-inc/$TARGET_BRANCH"
+          else
+            echo "差分なし"
+          fi
+        env:
+          TZ: Asia/Tokyo
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
