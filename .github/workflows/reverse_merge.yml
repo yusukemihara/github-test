@@ -18,6 +18,7 @@ jobs:
           fetch-depth: 0
       - uses: ruby/setup-ruby@v1
         with:
+          ruby-version: 3.1
           bundler: "Gemfile.lock"
       - name: install git-pr-release
         run: |
@@ -37,7 +38,7 @@ jobs:
             export GIT_PR_RELEASE_TOKEN=${{ secrets.GITHUB_TOKEN }}
             export GIT_PR_RELEASE_BRANCH_PRODUCTION=develop
             export GIT_PR_RELEASE_BRANCH_STAGING="${TARGET_BRANCH}"
-            export GIT_PR_RELEASE_TEMPLATE=".git-pr-release-reverse-merge-template.erb"
+            export GIT_PR_RELEASE_TEMPLATE=".github/.git-pr-release-reverse-merge-template.erb"
             export GIT_PR_RELEASE_LABELS="group:ReverseMerge"
             git-pr-release
             sleep 5
