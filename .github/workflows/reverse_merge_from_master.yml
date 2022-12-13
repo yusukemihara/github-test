@@ -15,6 +15,7 @@ jobs:
           fetch-depth: 0
       - uses: ruby/setup-ruby@v1
         with:
+          ruby-version: 3.1
           bundler: "Gemfile.lock"
       - name: pre build
         id: check
