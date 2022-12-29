@@ -44,7 +44,7 @@ jobs:
             sleep 5
             PR_NUMBER=$(gh pr list --base develop --head "${TARGET_BRANCH}" --json number --jq '.[0] | .number' --state open --label 'group:ReverseMerge')
             echo "PR_NUMBER: $PR_NUMBER"
-            gh pr merge "$PR_NUMBER" --merge --subject "Merge pull request #$PR_NUMBER from medley-inc/$TARGET_BRANCH"
+            gh pr merge "$PR_NUMBER" --auto --merge --subject "Merge pull request #$PR_NUMBER from medley-inc/$TARGET_BRANCH"
           else
             echo "差分なし"
           fi
