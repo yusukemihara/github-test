@@ -44,7 +44,6 @@ jobs:
           sleep 5
           PR_NUMBER=$(gh pr list --base "${TARGET_BRANCH}" --head master --json number --jq '.[0] | .number' --state open --label 'group:ReverseMerge')
           echo "PR_NUMBER: $PR_NUMBER"
-          gh pr merge "$PR_NUMBER" --merge --subject "Merge pull request #$PR_NUMBER from medley-inc/master"
         env:
           TZ: Asia/Tokyo
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
