@@ -1,0 +1,43 @@
+name: hotfix pr
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1
+      - name: get current date
+        env:
+          TZ: "Asia/Tokyo"
+        id: date
+        run: echo "date=`date +'%Y%m%d'`" >>$GITHUB_OUTPUT
+      - name: install git-pr-release
+        run: |
+          gem install git-pr-release -N
+      - name: create pr
+        run: |
+          echo "GITHUB_REPOSITORY=${GITHUB_REPOSITORY}"
+          HOTFIX_BRANCH="hotfix-${{ steps.date.outputs.date }}"
+          git checkout -b "${HOTFIX_BRANCH}" origin/master
+          git push --force origin "${HOTFIX_BRANCH}"
+
+          export GIT_PR_RELEASE_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          export GIT_PR_RELEASE_BRANCH_PRODUCTION=master
+          export GIT_PR_RELEASE_BRANCH_STAGING="${HOTFIX_BRANCH}"
+          export GIT_PR_RELEASE_TEMPLATE=".github/.git-pr-hotfix-template.erb"
+          export DEBUG=1
+          git-pr-release
+
+          sleep 5
+          PR_NUMBER=$(gh pr list --base master --head "${HOTFIX_BRANCH}" --json number --jq '.[0] | .number' --state open --label 'group:Hotfix')
+          echo "PR_NUMBER: $PR_NUMBER"
+        env:
+          TZ: Asia/Tokyo
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
