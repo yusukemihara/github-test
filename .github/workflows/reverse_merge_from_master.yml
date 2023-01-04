@@ -26,7 +26,7 @@ jobs:
       - name: create reverse merge
         if: ${{ steps.check.outputs.master_diff != 'OK' }}
         run: |
-          LATEST_RELEASE_BRANCH_NAME=$(git branch -r | grep "origin/release-202" | tail -n1 | sed "s/origin\///" | sed "s/ //g")
+          LATEST_RELEASE_BRANCH_NAME=$(git branch -r | grep "origin/release-20" | tail -n1 | sed "s/origin\///" | sed "s/ //g")
           echo "LATEST_RELEASE_BRANCH_NAME=$LATEST_RELEASE_BRANCH_NAME"
           TARGET_BRANCH=develop
           if [ -n "$LATEST_RELEASE_BRANCH_NAME" ]; then

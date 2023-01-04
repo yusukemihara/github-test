@@ -24,7 +24,7 @@ jobs:
         run: |
           gem install git-pr-release -N
       - run: |
-          TARGET_BRANCH=$(git branch -r | grep "origin/release-202" | tail -n1 | sed "s/origin\///" | sed "s/ //g")
+          TARGET_BRANCH=$(git branch -r | grep "origin/release-20" | tail -n1 | sed "s/origin\///" | sed "s/ //g")
           echo "TARGET_BRANCH=$TARGET_BRANCH"
           if [ -z "${TARGET_BRANCH}" ]; then
             echo "release branchがない"

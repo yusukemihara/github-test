@@ -1,0 +1,49 @@
+name: bugfix pr
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1
+      - name: get current date
+        env:
+          TZ: "Asia/Tokyo"
+        id: date
+        run: echo "date=`date +'%Y%m%d'`" >>$GITHUB_OUTPUT
+      - name: install git-pr-release
+        run: |
+          gem install git-pr-release -N
+      - name: create pr
+        run: |
+          RELEASE_BRANCH=$(git branch -r | grep "origin/release-20" | tail -n1 | sed "s/origin\///" | sed "s/ //g")
+          echo "RELEASE_BRANCH=$RELEASE_BRANCH"
+          if [ -z "${RELEASE_BRANCH}" ]; then
+            echo "release branchがない"
+            exit 0
+          fi
+          echo "GITHUB_REPOSITORY=${GITHUB_REPOSITORY}"
+          BUGFIX_BRANCH="bugfix-${{ steps.date.outputs.date }}"
+          git checkout -b "${BUGFIX_BRANCH}" "origin/${RELEASE_BRANCH}"
+          git push --force origin "${BUGFIX_BRANCH}"
+
+          export GIT_PR_RELEASE_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          export GIT_PR_RELEASE_BRANCH_PRODUCTION="${RELEASE_BRANCH}"
+          export GIT_PR_RELEASE_BRANCH_STAGING="${BUGFIX_BRANCH}"
+          export GIT_PR_RELEASE_TEMPLATE=".github/.git-pr-bugfix-template.erb"
+          export DEBUG=1
+          git-pr-release
+
+          sleep 5
+          PR_NUMBER=$(gh pr list --base master --head "${BUGFIX_BRANCH}" --json number --jq '.[0] | .number' --state open --label 'group:Bugfix')
+          echo "PR_NUMBER: $PR_NUMBER"
+        env:
+          TZ: Asia/Tokyo
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
