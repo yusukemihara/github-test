@@ -37,7 +37,7 @@ jobs:
           export GIT_PR_RELEASE_BRANCH_STAGING="${HOTFIX_BRANCH}"
           export GIT_PR_RELEASE_TEMPLATE=".github/.git-pr-hotfix-template.erb"
           export DEBUG=1
-          git-pr-release
+          git-pr-release --overwrite-description
 
           sleep 5
           PR_NUMBER=$(gh pr list --base master --head "${HOTFIX_BRANCH}" --json number --jq '.[0] | .number' --state open --label 'group:Hotfix')
