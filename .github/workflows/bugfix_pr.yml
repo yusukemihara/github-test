@@ -32,6 +32,7 @@ jobs:
           echo "GITHUB_REPOSITORY=${GITHUB_REPOSITORY}"
           BUGFIX_BRANCH="bugfix-${{ steps.date.outputs.date }}"
           git checkout -b "${BUGFIX_BRANCH}" "origin/${RELEASE_BRANCH}"
+          git commit --allow-empty -m "bugfix ${{ steps.date.outputs.date }}"
           git push --force origin "${BUGFIX_BRANCH}"
 
           export GIT_PR_RELEASE_TOKEN=${{ secrets.GITHUB_TOKEN }}

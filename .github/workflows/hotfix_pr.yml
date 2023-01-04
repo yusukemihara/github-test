@@ -26,6 +26,7 @@ jobs:
           echo "GITHUB_REPOSITORY=${GITHUB_REPOSITORY}"
           HOTFIX_BRANCH="hotfix-${{ steps.date.outputs.date }}"
           git checkout -b "${HOTFIX_BRANCH}" origin/master
+          git commit --allow-empty -m "hotfix ${{ steps.date.outputs.date }}"
           git push --force origin "${HOTFIX_BRANCH}"
 
           export GIT_PR_RELEASE_TOKEN=${{ secrets.GITHUB_TOKEN }}
