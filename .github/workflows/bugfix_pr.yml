@@ -38,7 +38,7 @@ jobs:
           git commit --allow-empty -m "bugfix ${{ steps.date.outputs.date }}"
           git push --force origin "${BUGFIX_BRANCH}"
 
-          gh pr create --base "${RELEASE_BRANCH}" --head "${BUGFIX_BRANCH}" --title "bugfix ${{ steps.date.outputs.date }}" --body ""
+          gh pr create --base "${RELEASE_BRANCH}" --head "${BUGFIX_BRANCH}" --title "Bugfix `ruby -e 'print Time.now'`" --body ""
 
           sleep 5
           PR_NUMBER=$(gh pr list --base master --head "${BUGFIX_BRANCH}" --json number --jq '.[0] | .number' --state open --label 'group:Bugfix')
