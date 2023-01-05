@@ -32,7 +32,7 @@ jobs:
           git commit --allow-empty -m "hotfix ${{ steps.date.outputs.date }}"
           git push --force origin "${HOTFIX_BRANCH}"
 
-          gh pr create --base master --head "${HOTFIX_BRANCH}" --title "hotfix ${{ steps.date.outputs.date }}" --body ""
+          gh pr create --base master --head "${HOTFIX_BRANCH}" --title "Hotfix `ruby -e 'print Time.now'`" --body ""
 
           sleep 5
           PR_NUMBER=$(gh pr list --base master --head "${HOTFIX_BRANCH}" --json number --jq '.[0] | .number' --state open --label 'group:Hotfix')
