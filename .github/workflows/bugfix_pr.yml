@@ -18,6 +18,10 @@ jobs:
           TZ: "Asia/Tokyo"
         id: date
         run: echo "date=`date +'%Y%m%d'`" >>$GITHUB_OUTPUT
+      - name: get current datetime
+        env:
+          TZ: "Asia/Tokyo"
+        id: datetime
         run: echo "datetime=`ruby -e 'print Time.now'`" >>$GITHUB_OUTPUT
       - name: install git-pr-release
         run: |
@@ -39,7 +43,7 @@ jobs:
           git commit --allow-empty -m "bugfix ${{ steps.date.outputs.date }}"
           git push --force origin "${BUGFIX_BRANCH}"
 
-          gh pr create --base "${RELEASE_BRANCH}" --head "${BUGFIX_BRANCH}" --title "Bugfix ${{ steps.date.outputs.datetime }}" --body ""
+          gh pr create --base "${RELEASE_BRANCH}" --head "${BUGFIX_BRANCH}" --title "Bugfix ${{ steps.datetime.outputs.datetime }}" --body ""
 
           sleep 5
           PR_NUMBER=$(gh pr list --base master --head "${BUGFIX_BRANCH}" --json number --jq '.[0] | .number' --state open --label 'group:Bugfix')
