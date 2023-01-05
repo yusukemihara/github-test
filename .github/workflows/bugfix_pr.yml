@@ -38,12 +38,7 @@ jobs:
           git commit --allow-empty -m "bugfix ${{ steps.date.outputs.date }}"
           git push --force origin "${BUGFIX_BRANCH}"
 
-          export GIT_PR_RELEASE_TOKEN=${{ secrets.GITHUB_TOKEN }}
-          export GIT_PR_RELEASE_BRANCH_PRODUCTION="${RELEASE_BRANCH}"
-          export GIT_PR_RELEASE_BRANCH_STAGING="${BUGFIX_BRANCH}"
-          export GIT_PR_RELEASE_TEMPLATE=".github/.git-pr-bugfix-template.erb"
-          export DEBUG=1
-          git-pr-release
+          gh pr create --base "${RELEASE_BRANCH}" --head "${BUGFIX_BRANCH}" --title "bugfix ${{ steps.date.outputs.date }}" --body ""
 
           sleep 5
           PR_NUMBER=$(gh pr list --base master --head "${BUGFIX_BRANCH}" --json number --jq '.[0] | .number' --state open --label 'group:Bugfix')
