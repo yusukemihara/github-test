@@ -26,8 +26,12 @@ jobs:
           echo "GITHUB_REPOSITORY=${GITHUB_REPOSITORY}"
           HOTFIX_BRANCH="hotfix-${{ steps.date.outputs.date }}"
           git checkout -b "${HOTFIX_BRANCH}" origin/master
+          git config user.name "actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add .
+          git commit --allow-empty -m "hotfix ${{ steps.date.outputs.date }}"
           git push --force origin "${HOTFIX_BRANCH}"
-          gh pr create --base master --head "${HOTFIX_BRANCH}" --title "Hotfix ${{ steps.date.outputs.date }}" --body ""
+          gh pr create --base master --head "${HOTFIX_BRANCH}" --title "hotfix ${{ steps.date.outputs.date }}" --body ""
           PR_NUMBER=$(gh pr list --base master --head "${HOTFIX_BRANCH}" --json number --jq '.[0] | .number' --state open --label 'group:Hotfix')
           echo "PR_NUMBER: $PR_NUMBER"
         env:
