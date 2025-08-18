@@ -1,8 +1,8 @@
 ---
 name: "release"
 about: "moge"
-title: "[作業ログ]YYYY-MM-DD 定常リリース"
-labels: ["メンテナンス"]
+title: "title"
+labels: ["group:Deps"]
 projects: ["yusukemihara/1"]
 ---
 ## 概要
