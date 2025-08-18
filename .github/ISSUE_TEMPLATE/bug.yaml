@@ -2,6 +2,7 @@ name: 🐞 Bug
 description: File a bug/issue
 title: "【SRIM不具合】"
 labels: ["001_利用者影響あり", "group:不具合対応"]
+projects: ["yusukemihara/1"]
 body:
 - type: textarea
   attributes:
