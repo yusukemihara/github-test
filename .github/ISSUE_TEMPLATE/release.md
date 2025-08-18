@@ -1,6 +1,6 @@
 ---
 name: "release"
-about: "定常リリース"
+about: "moge"
 title: "[作業ログ]YYYY-MM-DD 定常リリース"
 labels: ["メンテナンス"]
 projects: ["yusukemihara/1"]
