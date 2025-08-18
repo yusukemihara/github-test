@@ -3,7 +3,7 @@ name: "release"
 about: "定常リリース"
 title: "[作業ログ]YYYY-MM-DD 定常リリース"
 labels: ["メンテナンス"]
-projects: ["moge開発"]
+projects: ["yusukemihara/1"]
 ---
 ## 概要
 
